@@ -2,29 +2,29 @@
     <div class="product-details product-details-centered" v-if="product">
         <h1 class="product-title">{{ product.name }}</h1>
 
-        <div class="ratings-container">
+        <!-- <div class="ratings-container">
             <div class="ratings">
                 <div class="ratings-val" :style="{width: product.ratings * 20 + '%'}"></div>
                 <span class="tooltip-text">{{ product.ratings.toFixed(2) }}</span>
             </div>
             <span class="ratings-text mt-0">( {{ product.review }} Reviews )</span>
-        </div>
+        </div> -->
 
-        <div class="product-price" v-if="product.stock==0" key="outPrice">
-            <span class="out-price">${{ product.price.toFixed(2) }}</span>
+        <div class="product-price" v-if="product.details.opening_stock==0" key="outPrice">
+            <span class="out-price">${{ parseFloat(product.details.sales_price).toFixed(2) }}</span>
         </div>
 
         <template v-else>
             <div class="product-price" v-if="minPrice == maxPrice">${{ minPrice.toFixed(2) }}</div>
             <template v-else>
-                <div class="product-price" v-if="product.variants.length == 0">
+                <div class="product-price" >
                     <span class="new-price">${{ minPrice.toFixed(2) }}</span>
                     <span class="old-price">${{ maxPrice.toFixed(2) }}</span>
                 </div>
-                <div
+                <!-- <div
                     class="product-price"
                     v-else
-                >${{minPrice.toFixed(2)}} - ${{maxPrice.toFixed(2)}}</div>
+                >${{minPrice.toFixed(2)}} - ${{maxPrice.toFixed(2)}}</div> -->
             </template>
         </template>
 
@@ -32,7 +32,7 @@
             <p>{{ product.short_desc }}</p>
         </div>
 
-        <template v-if="product.variants.length > 0">
+        <!-- <template v-if="product.variants.length > 0">
             <div class="details-filter-row details-row-size">
                 <label>Color:</label>
 
@@ -77,7 +77,7 @@
                     class="product-price"
                 >${{ selectedVariant.price ? selectedVariant.price.toFixed(2) : 0 }}</div>
             </vue-slide-toggle>
-        </template>
+        </template> -->
 
         <div class="product-details-action">
             <div class="details-action-col">
@@ -85,7 +85,9 @@
                 <a
                     href="#"
                     class="btn-product btn-cart ml-sm-2"
-                    :class="{'btn-disabled': !canAddToCart(product, qty) || (product.variants.length > 0 && ! showVariationPrice) }"
+                    :class="{'btn-disabled': false
+                    // !canAddToCart(product, qty) || (product.variants.length > 0 && ! showVariationPrice) 
+                }"
                     @click.prevent="addCart"
                 >
                     <span>add to cart</span>
@@ -118,11 +120,11 @@
         <div class="product-details-footer">
             <div class="product-cat">
                 <span>Category:</span>
-                <span v-for="(cat, index) of product.category" :key="index">
+                <span>
                     <nuxt-link
-                        :to="{path: '/shop/sidebar/list', query: {category: cat.slug}}"
-                    >{{ cat.name }}</nuxt-link>
-                    {{ index < product.category.length - 1 ? ',' : '' }}
+                        :to="{path: '/shop/sidebar/list', query: {category: product.category.slug}}"
+                    >{{ product.category.name }}</nuxt-link>
+                    <!-- {{ index < product.category.length - 1 ? ',' : '' }} -->
                 </span>
             </div>
 
@@ -182,138 +184,154 @@ export default {
         ...mapGetters('cart', ['canAddToCart']),
         ...mapGetters('wishlist', ['isInWishlist']),
         ...mapGetters('compare', ['isInCompare']),
-        showClear: function() {
-            return this.selectedVariant.color || this.selectedVariant.size
-                ? true
-                : false;
-        },
-        showVariationPrice: function() {
-            return this.selectedVariant.color && this.selectedVariant.size
-                ? true
-                : false;
-        }
+        // showClear: function() {
+        //     return this.selectedVariant.color || this.selectedVariant.size
+        //         ? true
+        //         : false;
+        // },
+        // showVariationPrice: function() {
+        //     return this.selectedVariant.color && this.selectedVariant.size
+        //         ? true
+        //         : false;
+        // }
     },
     created: function() {
-        let min = this.minPrice;
+        // let min = this.minPrice;
+        // let max = this.maxPrice;
+        // this.variationGroup = this.product.variants.reduce((acc, cur) => {
+        //     cur.size.map(item => {
+        //         acc.push({
+        //             color: cur.color,
+        //             colorName: cur.color_name,
+        //             size: item.name,
+        //             price: cur.price
+        //         });
+        //     });
+        //     if (min > cur.price) min = cur.price;
+        //     if (max < cur.price) max = cur.price;
+        //     return acc;
+        // }, []);
+
+        // if (this.product.variants.length == 0) {
+        //     min = this.product.sale_price
+        //         ? this.product.sale_price
+        //         : this.product.price;
+        //     max = this.product.price;
+        // }
+
+        // this.minPrice = min;
+        // this.maxPrice = max;
+
+
+         let min = this.minPrice;
         let max = this.maxPrice;
-        this.variationGroup = this.product.variants.reduce((acc, cur) => {
-            cur.size.map(item => {
-                acc.push({
-                    color: cur.color,
-                    colorName: cur.color_name,
-                    size: item.name,
-                    price: cur.price
-                });
-            });
-            if (min > cur.price) min = cur.price;
-            if (max < cur.price) max = cur.price;
-            return acc;
-        }, []);
+        // this.product.variants.map(item => {
+        //     if (min > item.price) min = item.price;
+        //     if (max < item.price) max = item.price;
+        // }, []);
 
-        if (this.product.variants.length == 0) {
-            min = this.product.sale_price
-                ? this.product.sale_price
-                : this.product.price;
-            max = this.product.price;
-        }
+        // if (this.product.variants.length == 0) {
+            min = this.product.details.sales_price
+            max = this.product.details.sales_price
+        // }
 
-        this.minPrice = min;
-        this.maxPrice = max;
+        this.minPrice = parseFloat(min);
+        this.maxPrice = parseFloat(max);
 
-        this.refreshSelectableGroup();
+        // this.refreshSelectableGroup();
     },
     methods: {
         ...mapActions('cart', ['addToCart']),
         ...mapActions('wishlist', ['addToWishlist']),
         ...mapActions('compare', ['addToCompare']),
-        refreshSelectableGroup: function() {
-            let tempArray = [...this.variationGroup];
-            if (this.selectedVariant.color) {
-                tempArray = this.variationGroup.reduce((acc, cur) => {
-                    if (this.selectedVariant.color !== cur.color) {
-                        return acc;
-                    }
-                    return [...acc, cur];
-                }, []);
-            }
+        // refreshSelectableGroup: function() {
+        //     let tempArray = [...this.variationGroup];
+        //     if (this.selectedVariant.color) {
+        //         tempArray = this.variationGroup.reduce((acc, cur) => {
+        //             if (this.selectedVariant.color !== cur.color) {
+        //                 return acc;
+        //             }
+        //             return [...acc, cur];
+        //         }, []);
+        //     }
 
-            this.sizeArray = tempArray.reduce((acc, cur) => {
-                if (acc.findIndex(item => item.size == cur.size) !== -1)
-                    return acc;
-                return [...acc, cur];
-            }, []);
+        //     this.sizeArray = tempArray.reduce((acc, cur) => {
+        //         if (acc.findIndex(item => item.size == cur.size) !== -1)
+        //             return acc;
+        //         return [...acc, cur];
+        //     }, []);
 
-            tempArray = [...this.variationGroup];
-            if (this.selectedVariant.size) {
-                tempArray = this.variationGroup.reduce((acc, cur) => {
-                    if (this.selectedVariant.size !== cur.size) {
-                        return acc;
-                    }
-                    return [...acc, cur];
-                }, []);
-            }
+        //     tempArray = [...this.variationGroup];
+        //     if (this.selectedVariant.size) {
+        //         tempArray = this.variationGroup.reduce((acc, cur) => {
+        //             if (this.selectedVariant.size !== cur.size) {
+        //                 return acc;
+        //             }
+        //             return [...acc, cur];
+        //         }, []);
+        //     }
 
-            this.colorArray = this.product.variants.reduce((acc, cur) => {
-                if (
-                    tempArray.findIndex(item => item.color == cur.color) == -1
-                ) {
-                    return [
-                        ...acc,
-                        {
-                            color: cur.color,
-                            colorName: cur.color_name,
-                            price: cur.price,
-                            disabled: true
-                        }
-                    ];
-                }
-                return [
-                    ...acc,
-                    {
-                        color: cur.color,
-                        colorName: cur.color_name,
-                        price: cur.price,
-                        disabled: false
-                    }
-                ];
-            }, []);
-        },
-        selectColor: function(item) {
-            if (item.color == this.selectedVariant.color) {
-                this.selectedVariant = {
-                    ...this.selectedVariant,
-                    color: null,
-                    colorName: null,
-                    price: item.price
-                };
-            } else {
-                this.selectedVariant = {
-                    ...this.selectedVariant,
-                    color: item.color,
-                    colorName: item.colorName,
-                    price: item.price
-                };
-            }
-            this.refreshSelectableGroup();
-        },
-        selectSize: function() {
-            if (this.selectedVariant.size == 'null') {
-                this.selectedVariant = { ...this.selectedVariant, size: null };
-            }
-            this.refreshSelectableGroup();
-        },
+        //     this.colorArray = this.product.variants.reduce((acc, cur) => {
+        //         if (
+        //             tempArray.findIndex(item => item.color == cur.color) == -1
+        //         ) {
+        //             return [
+        //                 ...acc,
+        //                 {
+        //                     color: cur.color,
+        //                     colorName: cur.color_name,
+        //                     price: cur.price,
+        //                     disabled: true
+        //                 }
+        //             ];
+        //         }
+        //         return [
+        //             ...acc,
+        //             {
+        //                 color: cur.color,
+        //                 colorName: cur.color_name,
+        //                 price: cur.price,
+        //                 disabled: false
+        //             }
+        //         ];
+        //     }, []);
+        // },
+        // selectColor: function(item) {
+        //     if (item.color == this.selectedVariant.color) {
+        //         this.selectedVariant = {
+        //             ...this.selectedVariant,
+        //             color: null,
+        //             colorName: null,
+        //             price: item.price
+        //         };
+        //     } else {
+        //         this.selectedVariant = {
+        //             ...this.selectedVariant,
+        //             color: item.color,
+        //             colorName: item.colorName,
+        //             price: item.price
+        //         };
+        //     }
+        //     this.refreshSelectableGroup();
+        // },
+        // selectSize: function() {
+        //     if (this.selectedVariant.size == 'null') {
+        //         this.selectedVariant = { ...this.selectedVariant, size: null };
+        //     }
+        //     this.refreshSelectableGroup();
+        // },
         changeQty: function(current) {
             this.qty = current;
         },
-        clearSelection: function() {
-            this.selectedVariant = {
-                ...this.selectedVariant,
-                color: null,
-                colorName: null,
-                size: null
-            };
-            this.refreshSelectableGroup();
-        },
+        // clearSelection: function() {
+        //     this.selectedVariant = {
+        //         ...this.selectedVariant,
+        //         color: null,
+        //         colorName: null,
+        //         size: null
+        //     };
+        //     this.refreshSelectableGroup();
+        // },
         addCart: function() {
             let newProduct = { ...this.product };
             if (this.product.variants.length > 0) {

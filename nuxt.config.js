@@ -106,10 +106,13 @@ export default {
         { src: '~/plugins/nouislider.js', ssr: false },
     ],
 
-    modules: [ '@nuxtjs/axios' ],
+    modules: [ 
+        '@nuxtjs/axios',
+        '@nuxt/http'
+     ],
 
     router: {
-        base: '/vue/molla/demo-12/',
+        base: '',
         linkActiveClass: 'link-active',
         linkExactActiveClass: 'active'
     },
@@ -125,10 +128,31 @@ export default {
         fallback: '404.html'
     },
 
-    ssr: false,
+    ssr: true,
 
     server: {
         port: 4000,
         host: 'localhost'
-    }
+    },
+
+    
+      http: {
+        baseURL: 'https://dashboard.noorstores.ly/api/v1/', // Used as fallback if no runtime config is provided
+      },
+
+      axios: {
+        baseURL: 'https://dashboard.noorstores.ly/api/v1/', // Used as fallback if no runtime config is provided
+      },
+      publicRuntimeConfig: {
+        http: {
+          browserBaseURL: process.env.BROWSER_BASE_URL
+        },
+      },
+      privateRuntimeConfig: {
+        http: {
+          baseURL: process.env.BASE_URL
+        }
+      }
+
+      
 };

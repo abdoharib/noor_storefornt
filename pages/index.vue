@@ -309,6 +309,7 @@ export default {
     components: {
         NewCollection
     },
+ 
     data: function() {
         return {
             loaded: false,

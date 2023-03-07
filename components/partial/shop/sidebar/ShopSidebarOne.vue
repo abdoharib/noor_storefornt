@@ -24,7 +24,7 @@
                                 :key="index"
                             >
                                 <nuxt-link
-                                    :to="{path: $route.path, query: {category: category.slug}}"
+                                    :to="{path: $route.path, query: {'exact[category_id]': category.id}}"
                                     :class="{active: categorySelected(category)}"
                                 >{{ category.name }}</nuxt-link>
                                 <span class="item-count">{{ category.count }}</span>
@@ -34,7 +34,7 @@
                 </vue-slide-toggle>
             </div>
 
-            <div class="widget widget-collapsible">
+            <!-- <div class="widget widget-collapsible">
                 <h3 class="widget-title mb-2">
                     <a
                         href="#widget-2"
@@ -68,9 +68,9 @@
                         </div>
                     </div>
                 </vue-slide-toggle>
-            </div>
+            </div> -->
 
-            <div class="widget widget-collapsible">
+            <!-- <div class="widget widget-collapsible">
                 <h3 class="widget-title mb-2">
                     <a
                         href="#widget-3"
@@ -94,7 +94,7 @@
                         </div>
                     </div>
                 </vue-slide-toggle>
-            </div>
+            </div> -->
 
             <div class="widget widget-collapsible">
                 <h3 class="widget-title mb-2">
@@ -110,7 +110,7 @@
                         <div class="filter-items">
                             <div
                                 class="filter-item"
-                                v-for="(item, index) in filterData.brands"
+                                v-for="(brand, index) in filterData.brands"
                                 :key="index"
                             >
                                 <div class="custom-control custom-checkbox">
@@ -118,13 +118,13 @@
                                         type="checkbox"
                                         class="custom-control-input"
                                         :id="'brand-' + index"
-                                        @click="setBrandFilter(item)"
-                                        :checked="brandChecked(item)"
+                                        @click="setBrandFilter(brand)"
+                                        :checked="brandChecked(brand)"
                                     />
                                     <label
                                         class="custom-control-label"
                                         :for="'brand-' + index"
-                                    >{{ item.brand }}</label>
+                                    >{{ brand.name }}</label>
                                 </div>
                             </div>
                         </div>
@@ -168,14 +168,18 @@
 
 <script>
 import { VueSlideToggle } from 'vue-slide-toggle';
-import { shopData } from '~/utilities/data';
+// import { shopData } from '~/utilities/data';
 
 export default {
     components: {
         VueSlideToggle
     },
     props: {
-        isSidebar: Boolean
+        isSidebar: Boolean,
+        filterData:{
+            required:true,
+            type:Object
+        }
     },
     data: function() {
         return {
@@ -191,9 +195,10 @@ export default {
                 }
             },
             toggleStates: [true, true, true, true, true],
-            filterData: shopData
+            // filterData: {}
         };
     },
+
     computed: {
         priceRangeText: function() {
             return (
@@ -226,23 +231,26 @@ export default {
         }
     },
     created: function() {
-        document
-                .querySelector('body')
-                .classList.remove('sidebar-filter-active');
-        if (this.$route.query.minPrice && this.$route.query.maxPrice) {
-            this.loaded = false;
-            this.priceValues = [
-                this.$route.query.minPrice,
-                this.$route.query.maxPrice
-            ];
-            this.$nextTick(function() {
-                this.loaded = true;
-            });
-        } else {
-            this.loaded = false;
-            this.$nextTick(function() {
-                this.loaded = true;
-            });
+        if(process.client){
+            
+            document
+                    .querySelector('body')
+                    .classList.remove('sidebar-filter-active');
+            if (this.$route.query.minPrice && this.$route.query.maxPrice) {
+                this.loaded = false;
+                this.priceValues = [
+                    this.$route.query.minPrice,
+                    this.$route.query.maxPrice
+                ];
+                this.$nextTick(function() {
+                    this.loaded = true;
+                });
+            } else {
+                this.loaded = false;
+                this.$nextTick(function() {
+                    this.loaded = true;
+                });
+            }
         }
     },
     methods: {
@@ -269,14 +277,14 @@ export default {
         },
         brandChecked: function(item) {
             return (
-                this.$route.query.brand &&
-                this.$route.query.brand.split(',').includes(item.slug)
+                this.$route.query.brand_id &&
+                this.$route.query.brand_id.split(',').includes(item.id)
             );
         },
         categorySelected: function(item) {
             return (
-                this.$route.query.category &&
-                this.$route.query.category == item.slug
+                this.$route.query.category_id &&
+                this.$route.query.category_id == item.id
             );
         },
         colorSelected: function(item) {
@@ -337,20 +345,20 @@ export default {
             if (!this.$route.query.brand) {
                 query = {
                     ...query,
-                    brand: item.slug
+                    'exact[brand_id]': item.id
                 };
-            } else if (this.$route.query.brand.split(',').includes(item.slug)) {
+            } else if (this.$route.query['exact[brand_id]'].split(',').includes(item.id)) {
                 query = {
                     ...query,
-                    brand: query.brand
+                    'exact[brand_id]': query['exact[brand_id]']
                         .split(',')
-                        .filter(slug => slug !== item.slug)
+                        .filter(slug => slug !== item.id)
                         .join(',')
                 };
             } else {
                 query = {
                     ...query,
-                    brand: [...query.brand.split(','), item.slug].join(',')
+                    'exact[brand_id]': [...query['exact[brand_id]'].split(','), item.id].join(',')
                 };
             }
 

@@ -1,19 +1,26 @@
 <template>
     <main class="main">
+
         <page-header :title="pageTitle" subtitle="Shop"></page-header>
+
         <nav aria-label="breadcrumb" class="breadcrumb-nav mb-2">
             <div class="container">
                 <ol class="breadcrumb">
+
                     <li class="breadcrumb-item">
                         <nuxt-link to="/">Home</nuxt-link>
                     </li>
+
                     <li class="breadcrumb-item">
                         <nuxt-link to="/shop/sidebar/list">Shop</nuxt-link>
                     </li>
+
                     <li class="breadcrumb-item active">{{ pageTitle }}</li>
+
                     <li class="breadcrumb-item" v-if="$route.query.searchTerm">
                         <span>Search - {{ $route.query.searchTerm }}</span>
                     </li>
+                    
                 </ol>
             </div>
         </nav>
@@ -21,10 +28,7 @@
         <div class="page-content">
             <div class="container">
                 <div class="row">
-                    <div
-                        class="col-lg-9 skeleton-body skel-shop-products"
-                        :class="{loaded: loaded}"
-                    >
+                    <div class="col-lg-9 skeleton-body skel-shop-products" :class="{ loaded: loaded }">
                         <div class="toolbox">
                             <div class="toolbox-left">
                                 <div class="toolbox-info">
@@ -37,13 +41,8 @@
                                 <div class="toolbox-sort">
                                     <label for="sortby">Sort by:</label>
                                     <div class="select-custom">
-                                        <select
-                                            name="sortby"
-                                            id="sortby"
-                                            class="form-control"
-                                            @change.prevent="getProducts"
-                                            v-model="orderBy"
-                                        >
+                                        <select name="sortby" id="sortby" class="form-control" @change.prevent="getProducts"
+                                            v-model="orderBy">
                                             <option value="default">Default</option>
                                             <option value="featured">Most Popular</option>
                                             <option value="rating">Most Rated</option>
@@ -52,11 +51,8 @@
                                     </div>
                                 </div>
                                 <div class="toolbox-layout">
-                                    <nuxt-link
-                                        to="/shop/sidebar/list"
-                                        class="btn-layout"
-                                        :class="{active: type === 'list'}"
-                                    >
+                                    <nuxt-link to="/shop/sidebar/list" class="btn-layout"
+                                        :class="{ active: type === 'list' }">
                                         <svg width="16" height="10">
                                             <rect x="0" y="0" width="4" height="4" />
                                             <rect x="6" y="0" width="10" height="4" />
@@ -65,11 +61,8 @@
                                         </svg>
                                     </nuxt-link>
 
-                                    <nuxt-link
-                                        to="/shop/sidebar/2cols"
-                                        class="btn-layout"
-                                        :class="{active: type === '2cols'}"
-                                    >
+                                    <nuxt-link to="/shop/sidebar/2cols" class="btn-layout"
+                                        :class="{ active: type === '2cols' }">
                                         <svg width="10" height="10">
                                             <rect x="0" y="0" width="4" height="4" />
                                             <rect x="6" y="0" width="4" height="4" />
@@ -78,11 +71,8 @@
                                         </svg>
                                     </nuxt-link>
 
-                                    <nuxt-link
-                                        to="/shop/sidebar/3cols"
-                                        class="btn-layout"
-                                        :class="{active: type === '3cols'}"
-                                    >
+                                    <nuxt-link to="/shop/sidebar/3cols" class="btn-layout"
+                                        :class="{ active: type === '3cols' }">
                                         <svg width="16" height="10">
                                             <rect x="0" y="0" width="4" height="4" />
                                             <rect x="6" y="0" width="4" height="4" />
@@ -93,11 +83,8 @@
                                         </svg>
                                     </nuxt-link>
 
-                                    <nuxt-link
-                                        to="/shop/sidebar/4cols"
-                                        class="btn-layout"
-                                        :class="{active: type === '4cols'}"
-                                    >
+                                    <nuxt-link to="/shop/sidebar/4cols" class="btn-layout"
+                                        :class="{ active: type === '4cols' }">
                                         <svg width="22" height="10">
                                             <rect x="0" y="0" width="4" height="4" />
                                             <rect x="6" y="0" width="4" height="4" />
@@ -120,36 +107,30 @@
 
                     <aside class="col-lg-3 order-lg-first" sticky-container>
                         <div v-sticky="!isSidebar" sticky-offset="{ top: 69 }">
-                            <button
-                                class="sidebar-fixed-toggler"
-                                @click="toggleSidebar"
-                                v-if="isSidebar"
-                            >
+                            <button class="sidebar-fixed-toggler" @click="toggleSidebar" v-if="isSidebar">
                                 <i class="icon-cog"></i>
                             </button>
 
                             <div class="sidebar-filter-overlay" @click="hideSidebar"></div>
-                            <shop-sidebar-one :is-sidebar="isSidebar"></shop-sidebar-one>
+                            <shop-sidebar-one :filter-data="filterData" :is-sidebar="isSidebar"></shop-sidebar-one>
                         </div>
                     </aside>
                 </div>
             </div>
         </div>
+
     </main>
 </template>
-<script>
-import { mapGetters } from 'vuex';
-import Sticky from 'vue-sticky-directive';
 
+<script>
 import PageHeader from '~/components/elements/PageHeader';
 import ShopListOne from '~/components/partial/shop/list/ShopListOne';
 import ShopSidebarOne from '~/components/partial/shop/sidebar/ShopSidebarOne';
 import Pagination from '~/components/elements/Pagination';
-
-import Repository, { baseUrl } from '~/repositories/repository.js';
 import { scrollToPageContent } from '~/utilities/common';
 
 export default {
+
     components: {
         PageHeader,
         ShopListOne,
@@ -157,9 +138,9 @@ export default {
         Pagination
     },
     directives: {
-        Sticky
+        [process.client]: () => import('vue-sticky-directive'),
     },
-    data: function() {
+    data: function () {
         return {
             products: [],
             perPage: 5,
@@ -167,67 +148,94 @@ export default {
             totalCount: 0,
             orderBy: 'default',
             isSidebar: true,
-            loaded: false
+            loaded: false,
+            filterData: {}
         };
     },
     computed: {
-        ...mapGetters('demo', ['currentDemo'])
+        // ...mapGetters('demo', ['currentDemo'])
     },
     watch: {
-        $route: function() {
+        $route: function () {
             this.getProducts(true);
         }
     },
-    created: function() {
+    created: function () {
         this.getProducts();
+
     },
-    mounted: function() {
+    mounted: function () {
         this.resizeHandler();
         window.addEventListener('resize', this.resizeHandler, {
             passive: true
         });
     },
-    destroyed: function() {
+    destroyed: function () {
         window.removeEventListener('resize', this.resizeHandler);
     },
-    methods: {
-        getProducts: async function(samePage = false) {
-            this.type = this.$route.params.type;
-            if (this.type == 'list') {
-                this.pageTitle = 'List';
-                this.perPage = 5;
-            } else if (this.type == '2cols') {
-                this.pageTitle = 'Grid 2 Columns';
-                this.perPage = 6;
-            } else if (this.type == '3cols') {
-                this.pageTitle = 'Grid 3 Columns';
-                this.perPage = 9;
-            } else if (this.type == '4cols') {
-                this.pageTitle = 'Grid 4 Columns';
-                this.perPage = 12;
+
+    async asyncData({ $http }) {
+        let responseCategories = await $http.$post('front/categories')
+        let responseBrands = await $http.$post('front/brands')
+
+        return {
+            filterData: {
+                categories: responseCategories.data.categories,
+                brands: responseBrands.data.brands
             }
+        }
+    },
+    async fetch() {
+        await this.getProducts();
+    },
+    methods: {
+
+        getProducts: async function (samePage = false) {
+            this.type = this.$route.params.type;
+
+            this.pageTitle = 'All';
+            this.perPage = 5;
+
+            // if (this.type == 'list') {
+            //     this.pageTitle = 'All';
+            //     this.perPage = 5;
+            // } else if (this.type == '2cols') {
+            //     this.pageTitle = 'Grid 2 Columns';
+            //     this.perPage = 6;
+            // } else if (this.type == '3cols') {
+            //     this.pageTitle = 'Grid 3 Columns';
+            //     this.perPage = 9;
+            // } else if (this.type == '4cols') {
+            //     this.pageTitle = 'Grid 4 Columns';
+            //     this.perPage = 12;
+            // }
 
             this.loaded = false;
-            await Repository.get(`${baseUrl}/shop`, {
-                params: {
-                    ...this.$route.query,
-                    orderBy: this.orderBy,
-                    perPage: this.perPage,
-                    demo: this.currentDemo
-                }
-            })
-                .then(response => {
-                    this.products = response.data.products;
-                    this.totalCount = response.data.totalCount;
-                    this.loaded = true;
-
-                    if (samePage) {
-                        scrollToPageContent();
+            try {
+                let response = await this.$axios.get('front/products', {
+                    params: {
+                        ...this.$route.query,
+                        // orderBy: this.orderBy,
+                        // perPage: this.perPage,
                     }
                 })
-                .catch(error => ({ error: JSON.stringify(error) }));
+                // console.log(response.data.data.products.data);
+                this.products = response.data.data.products.data;
+                this.totalCount = response.data.data.products.total;
+                this.loaded = true;
+
+                if (samePage) {
+                    scrollToPageContent();
+                }
+            } catch (error) {
+
+                throw JSON.stringify(error)
+            }
+
+
         },
-        toggleSidebar: function() {
+
+        toggleSidebar: function () {
             if (
                 document
                     .querySelector('body')
@@ -242,13 +250,12 @@ export default {
                     .classList.add('sidebar-filter-active');
             }
         },
-
-        hideSidebar: function() {
+        hideSidebar: function () {
             document
                 .querySelector('body')
                 .classList.remove('sidebar-filter-active');
         },
-        resizeHandler: function() {
+        resizeHandler: function () {
             if (window.innerWidth > 991) this.isSidebar = false;
             else this.isSidebar = true;
         }
